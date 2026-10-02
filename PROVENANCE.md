@@ -1,6 +1,6 @@
-# Provenance — S1 WA State map experiment
+# Provenance — landing page and CVI WA State map demo
 
-Everything the page loads is in this folder. Nothing is fetched at run time.
+Everything the pages load is in this repository. Nothing is fetched at run time.
 
 ## MapLibre GL JS 5.22.0 (`vendor/maplibre-gl/`)
 
@@ -31,11 +31,22 @@ Everything the page loads is in this folder. Nothing is fetched at run time.
 
 ## Own code
 
-`index.html` and `app/*.js` are internal WSDA work product published as a synthetic-only demo. They are **not
-licensed for reuse or redistribution**; no licence has been granted. The behavior reproduces the WA State map of
-WSDA's internal CVI tool and was checked against that tool's own functions on fabricated data.
+`index.html`, `landing.js`, `shared/*.js`, `cvi/index.html`, `cvi/datasets.js`, `cvi/sample.js` and `cvi/app/*.js` are
+internal WSDA work product published as a synthetic-only demo. They are **not licensed for reuse or redistribution**;
+no licence has been granted. The map reproduces the WA State map of WSDA's internal CVI tool and was checked against
+that tool's own functions on fabricated data.
 
 ## Sample data
 
-`samples/*.csv` are fabricated. Counts, certificate numbers and coordinates are invented; county anchor
-coordinates are rounded Census-derived label points. They contain no real records.
+Everything in `samples/` is fabricated: counts, certificate numbers, facility names, addresses and coordinates are
+invented (phone numbers use the fictional 555-01xx range, e-mail addresses the reserved `example.invalid` domain);
+county anchor coordinates are rounded Census-derived label points. They contain no real records. The page's
+"Download a sample bundle (ZIP)" builds the same files as `cvi_tier_full.zip` in the browser (`cvi/sample.js`).
+
+| File | SHA-256 |
+|---|---|
+| `cvi_master_small.csv` | `26639aa5dbe47547ed2bc924435759547d0ef9e836c196fa6ee3085bc5ce8eab` |
+| `cvi_master_wa39.csv` | `8847a63960213a8d1840476dc4b5c8445455d91764576b71b9dddf8a19a8d13d` |
+| `cvi_tier_full.zip` | `6792b679a9ddcfcf597eec707b07efeb48f3b28c8547c9a4ac46cbaf059c0db2` |
+| `cvi_tier_partner.zip` | `993460fbdffc74db50b18e85b9c08935aa67b2175e353da47481a6cb3d5dd573` |
+| `cvi_tier_public.zip` | `04493ebba9d4cbe3002b6c19ee0786c5a22262c307e67540f8e0887be5d9c272` |

@@ -2,14 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<!-- Strict Content Security Policy: local scripts only, MapLibre's worker from a Blob it builds itself, no network
-     (connect-src 'none'). Defence in depth only; local-only behaviour is verified by recorded browser observations. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' file:; worker-src blob:; child-src blob:; style-src 'self' file: 'unsafe-inline'; img-src data: blob:; connect-src 'none'; font-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'">
+<!-- Strict Content Security Policy: local scripts only, no network (connect-src 'none'), no workers. Defence in
+     depth only; local-only behaviour is verified by recorded browser observations. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' file:; style-src 'self' file: 'unsafe-inline'; img-src data: blob:; connect-src 'none'; font-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CVI WA State map (S1 experiment)</title>
+<title>WSDA Visualization Platform (F1 experiment)</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="vendor/maplibre-gl/maplibre-gl.css">
 <style>
   :root { --primary: #1c5a83; --muted: #6c757d; --border: #dee2e6; }
   * { box-sizing: border-box; }
@@ -17,135 +16,105 @@
   header.top { background: var(--primary); color: #fff; padding: 0.55rem 1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
   header.top h1 { font-size: 1.1rem; margin: 0; font-weight: 600; }
   .badge { font-size: 0.72rem; background: #fcb614; color: #382513; padding: 0.15rem 0.5rem; border-radius: 3px; font-weight: 700; }
-  .layout { display: flex; min-height: calc(100vh - 44px); }
-  aside.sidebar { width: 310px; flex: 0 0 310px; border-right: 1px solid var(--border); padding: 0.75rem; overflow-y: auto; max-height: calc(100vh - 44px); background: #fff; }
-  main { flex: 1 1 auto; position: relative; min-width: 0; }
-  .map-frame { position: relative; }
-  #map { height: 77vh; width: 100%; }
-  #map-status { position: absolute; top: 12px; left: 52px; right: 12px; z-index: 7; }
-  h5 { margin: 0 0 0.4rem; font-size: 1rem; }
-  details.section { border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.4rem; }
-  details.section > summary { cursor: pointer; padding: 0.55rem 0.75rem; font-weight: 600; font-size: 0.9rem; color: var(--primary); background: #f7f9fb; list-style-position: inside; }
-  details.section[open] > summary { background: #e7eef4; }
-  .section-body { padding: 0.75rem 0.85rem 0.4rem; }
-  h6.map-section { font-weight: 700; font-size: 0.85rem; color: var(--primary); margin: 0.2rem 0 0.5rem; padding-bottom: 0.25rem; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.04em; }
-  .field { margin-bottom: 0.75rem; }
-  .field > label.ctl, .ctl-row label.ctl { font-weight: 600; font-size: 0.85rem; color: #2c3e50; display: block; margin-bottom: 0.3rem; }
-  .ctl-row { display: flex; justify-content: space-between; align-items: baseline; }
-  .ctl-row .links { font-size: 0.8rem; }
-  .ctl-row .links button { background: none; border: none; color: var(--primary); padding: 0; cursor: pointer; font-size: 0.8rem; text-decoration: underline; }
-  .checklist { border: 1px solid #ced4da; border-radius: 4px; padding: 0.3rem 0.5rem; max-height: 150px; overflow-y: auto; font-size: 0.85rem; }
-  .checklist label, .radio label, .check label { display: flex; align-items: flex-start; gap: 0.4rem; font-weight: 400; margin: 0.15rem 0; cursor: pointer; font-size: 0.85rem; line-height: 1.3; }
-  .radio label input, .check label input, .checklist label input { margin-top: 0.15rem; }
-  .radio label .muted, .radio label span { display: inline; }
-  .inline label { display: inline-flex; margin-right: 0.8rem; }
-  select { width: 100%; font: inherit; font-size: 0.88rem; padding: 0.3rem; border: 1px solid #ced4da; border-radius: 4px; }
-  details.refine summary { cursor: pointer; font-size: 0.8rem; color: #5d6873; margin: 0.25rem 0; }
-  .btn { font: inherit; font-size: 0.85rem; padding: 0.35rem 0.7rem; border-radius: 4px; border: 1px solid var(--primary); background: #fff; color: var(--primary); cursor: pointer; font-weight: 600; }
-  .btn.full { width: 100%; }
-  .status { font-size: 0.8rem; padding: 0.45rem 0.6rem; border-radius: 4px; margin: 0.5rem 0; }
+  main { max-width: 980px; margin: 0 auto; padding: 1rem; }
+  h2 { font-size: 1.05rem; color: var(--primary); margin: 0.5rem 0 0.6rem; }
+  .pickers { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: stretch; }
+  .picker { border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.75rem; flex: 1 1 220px; }
+  .picker label { display: block; font-weight: 600; font-size: 0.88rem; color: #2c3e50; margin-bottom: 0.35rem; }
+  .picker .muted { display: block; margin-top: 0.3rem; }
+  #drop { border: 2px dashed #9fb6c8; border-radius: 6px; padding: 1.1rem; text-align: center; color: #456; margin: 0.75rem 0; font-size: 0.9rem; }
+  #drop.over { background: #e7f1f8; border-color: var(--primary); }
+  .status { font-size: 0.85rem; padding: 0.45rem 0.6rem; border-radius: 4px; margin: 0.5rem 0; }
   .status.info { background: #e7f1f8; color: #1c5a83; } .status.ok { background: #e6f2e1; color: #2d5a1b; }
   .status.warn { background: #fff3cd; color: #664d03; } .status.err { background: #f8d7da; color: #842029; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.85rem; margin: 0.4rem 0 1rem; }
+  th, td { text-align: left; padding: 0.3rem 0.5rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: #f7f9fb; color: #2c3e50; }
+  td.num { text-align: right; white-space: nowrap; }
   .muted { color: var(--muted); font-size: 0.78rem; }
-  #legend-toggle { position: absolute; bottom: 10px; left: 10px; z-index: 5; opacity: 0.85; font-size: 0.75em; padding: 0.2rem 0.5rem; background: #f8f9fa; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; }
-  #legend-panel { position: absolute; bottom: 42px; left: 10px; width: 190px; z-index: 5; background: rgba(255,255,255,0.93); border: 1px solid #ccc; border-radius: 4px; padding: 8px; font-size: 0.78em; }
-  .lg-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-  .lg-dot { display: inline-block; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 0 1px #999; flex-shrink: 0; }
-  .county-label { font-size: 11px; color: #333333; text-shadow: -1.5px 0 #fff, 1.5px 0 #fff, 0 -1.5px #fff, 0 1.5px #fff, 0 0 3px #fff; pointer-events: none; white-space: nowrap; }
-  .county-label.hidden { display: none; }
-  #toast { position: absolute; top: 10px; right: 50px; z-index: 6; max-width: 320px; }
-  #toast div { background: #fff3cd; color: #664d03; border: 1px solid #ffe69c; border-radius: 4px; padding: 0.5rem 0.75rem; font-size: 0.85rem; margin-bottom: 0.4rem; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
-  .maplibregl-popup-content { font-size: 13px; padding: 6px 10px; }
+  #bundle-banner { background: #e7f1f8; color: #1c5a83; border-bottom: 1px solid #c5d9e8; padding: 0.4rem 1rem; font-size: 0.9rem; font-weight: 600; }
+  h3 { font-size: 0.95rem; color: #2c3e50; margin: 1rem 0 0.2rem; }
+  .req { font-size: 0.7rem; color: var(--muted); border: 1px solid var(--border); border-radius: 3px; padding: 0 0.25rem; }
+  .st-found { color: #2d5a1b; font-weight: 600; } .st-missing { color: #6c757d; } .st-conflict { color: #664d03; font-weight: 600; }
+  select { font: inherit; font-size: 0.85rem; max-width: 100%; }
+  #checklist-notes { font-size: 0.85rem; color: #664d03; }
+  .cards { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .card { border: 1px solid var(--border); border-radius: 6px; padding: 0.7rem 0.85rem; flex: 1 1 260px; }
+  .card h3 { margin: 0 0 0.3rem; color: var(--primary); font-size: 1rem; }
+  .card p { font-size: 0.85rem; margin: 0 0 0.6rem; }
+  .card.soon { background: #f7f9fb; color: var(--muted); } .card.soon h3 { color: var(--muted); }
+  .card.routed { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+  .card-note { color: #1c5a83; font-weight: 600; }
+  .soon-badge { font-size: 0.75rem; border: 1px solid var(--border); border-radius: 3px; padding: 0.1rem 0.4rem; background: #fff; }
+  .btn { font: inherit; font-size: 0.88rem; padding: 0.4rem 0.8rem; border-radius: 4px; border: 1px solid var(--primary); background: #fff; color: var(--primary); cursor: pointer; font-weight: 600; }
+  .btn.primary { background: var(--primary); color: #fff; }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .next { border-radius: 6px; padding: 0.7rem 0.85rem; margin: 0.6rem 0 0.8rem; border: 1px solid; }
+  .next.ok { background: #e6f2e1; border-color: #9cc78a; color: #2d5a1b; } .next.warn { background: #fff3cd; border-color: #ffe69c; color: #664d03; }
+  .next.info { background: #e7f1f8; border-color: #c5d9e8; color: #1c5a83; }
+  .next p { margin: 0 0 0.4rem; font-weight: 600; font-size: 0.95rem; }
+  .next #next-guide { font-weight: normal; font-size: 0.85rem; }
+  .next ul { margin: 0.2rem 0 0.5rem 1.1rem; padding: 0; font-size: 0.85rem; }
+  .table-wrap { overflow-x: auto; }
+  .guide-table code, .guide-bundle code { font-size: 0.8rem; overflow-wrap: anywhere; }
+  .guide-table ul { margin: 0; padding-left: 1rem; }
+  .guide-bundle { font-size: 0.85rem; margin: 0 0 0.8rem; }
+  .guide-bundle summary { cursor: pointer; color: #2c3e50; font-weight: 600; }
+  .guide-bundle pre { background: #f7f9fb; border: 1px solid var(--border); border-radius: 4px; padding: 0.5rem; overflow-x: auto; }
+  .guide-sample { margin: 0.4rem 0 1.2rem; }
+  #guide-section { border-top: 1px solid var(--border); margin-top: 1.2rem; padding-top: 0.4rem; }
+  #guide-section p { font-size: 0.85rem; }
+  a { color: var(--primary); }
   footer.foot { font-size: 0.75rem; color: var(--muted); padding: 0.4rem 1rem; border-top: 1px solid var(--border); }
 </style>
 </head>
 <body>
 <header class="top">
-  <h1>CVI Traceability &mdash; WA State map</h1>
-  <span class="badge" title="Approved T07 experiment S1. Synthetic data only; not for real records.">S1 EXPERIMENT &middot; SYNTHETIC DATA ONLY</span>
+  <h1>WSDA Visualization Platform</h1>
+  <span class="badge" title="Approved F1 experiment. Synthetic data only; not for real records.">F1 EXPERIMENT &middot; SYNTHETIC DATA ONLY</span>
 </header>
-<div class="layout">
-  <aside class="sidebar" aria-label="Map controls">
-    <h5>Master dataset</h5>
-    <input type="file" id="file-input" accept=".csv,text/csv" aria-label="Choose a master-shaped CSV">
-    <div id="master-status" class="status warn" role="status" aria-live="polite">No master dataset loaded. Choose a master-shaped CSV file.</div>
-
-    <details class="section" open>
-      <summary>Filters</summary>
-      <div class="section-body">
-        <h6 class="map-section">WA State Filters</h6>
-        <div class="field">
-          <div class="ctl-row"><label class="ctl">Species Group</label><span class="links"><button type="button" data-all="species">All</button> &middot; <button type="button" data-clear="species">Clear</button></span></div>
-          <div class="checklist" id="f-species" role="group" aria-label="Species Group"></div>
-          <details class="refine"><summary>Refine by species</summary>
-            <div class="checklist" id="f-species-sub" role="group" aria-label="Refine by species"></div>
-            <div class="muted">None ticked = all species in the selected group(s).</div>
-          </details>
-        </div>
-        <div class="field">
-          <div class="ctl-row"><label class="ctl">Year(s)</label><span class="links"><button type="button" data-all="years">All</button> &middot; <button type="button" data-clear="years">Clear</button></span></div>
-          <div class="checklist" id="f-years" role="group" aria-label="Years"></div>
-        </div>
-        <div class="field">
-          <div class="ctl-row"><label class="ctl">Quarter(s)</label><span class="links"><button type="button" data-all="quarters">All</button> &middot; <button type="button" data-clear="quarters">Clear</button></span></div>
-          <div class="checklist" id="f-quarters" role="group" aria-label="Quarters"></div>
-        </div>
-        <div class="field check inline" role="group" aria-label="Direction">
-          <label class="ctl" title="Inbound: animals received INTO each WA county. Outbound: animals sent OUT of each WA county.">Direction</label>
-          <label><input type="checkbox" name="direction" value="Inbound" checked> Inbound</label>
-          <label><input type="checkbox" name="direction" value="Outbound" checked> Outbound</label>
-        </div>
-        <div class="field radio" role="radiogroup" aria-label="Display Mode">
-          <label class="ctl" title="When both directions are selected, circle sizes are scaled independently per direction; don't compare sizes across Inbound vs Outbound.">Display Mode</label>
-          <label><input type="radio" name="mode" value="side_by_side" checked><span>Separate inbound/outbound circles <span class="muted">(offset)</span></span></label>
-          <label><input type="radio" name="mode" value="total"> Combined total circle</label>
-        </div>
-      </div>
-    </details>
-
-    <details class="section" open>
-      <summary>Map Style</summary>
-      <div class="section-body">
-        <h6 class="map-section">WA State Style</h6>
-        <div class="field"><label class="ctl" for="s-scaling">Circle size scaling</label>
-          <select id="s-scaling">
-            <option value="log" selected>Logarithmic (smooth)</option><option value="sqrt">Square root (smooth)</option>
-            <option value="linear">Linear (smooth)</option><option value="quantile">Quantile (bins)</option><option value="natural">Natural breaks (bins)</option>
-          </select></div>
-        <div class="field" id="bins-field" hidden><label class="ctl" for="s-bins">Number of bins</label>
-          <select id="s-bins"><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option><option>10</option></select></div>
-        <div class="field"><label class="ctl" for="s-opacity">Circle opacity</label>
-          <select id="s-opacity"><option value="0.2">Very light (20%)</option><option value="0.4">Light (40%)</option><option value="0.6" selected>Medium (60%)</option><option value="0.8">Heavy (80%)</option><option value="1.0">Solid (100%)</option></select></div>
-        <div class="field"><label class="ctl" for="s-palette">Color palette</label><select id="s-palette"></select></div>
-        <div class="field check">
-          <label><input type="checkbox" id="s-labels" checked> Show county labels</label>
-          <label><input type="checkbox" id="s-lines"> Show county lines</label>
-        </div>
-        <button type="button" class="btn full" id="fit-wa">Fit to Washington</button>
-        <p class="muted">No tile basemap in S1: county shapes stand in for CVI's default CARTO Light basemap (see inventory Q1).</p>
-      </div>
-    </details>
-  </aside>
-  <main>
-    <div class="map-frame">
-      <div id="map" role="region" aria-label="Interactive map"></div>
-      <div id="map-status" class="status info" role="status" aria-live="polite">Starting map…</div>
-      <div id="toast" aria-live="polite"></div>
-      <button type="button" id="legend-toggle" aria-expanded="false" aria-controls="legend-panel">Legend &#9660;</button>
-      <div id="legend-panel" hidden></div>
+<div id="bundle-banner" role="note" hidden></div>
+<main>
+  <h2>Dashboards</h2>
+  <div id="profiles" class="cards"></div>
+  <h2>Load your data</h2>
+  <p class="muted">Files stay on this computer. Nothing is uploaded; the page reads them in the browser only.
+    Not sure what to load? See <a href="#guide" id="intro-guide">what data each dashboard needs</a>, or download a sample bundle there.</p>
+  <div class="pickers">
+    <div class="picker">
+      <label for="files-input">Choose files or a ZIP bundle</label>
+      <input type="file" id="files-input" multiple accept=".zip,.csv,.json,.geojson,application/zip,text/csv,application/json">
+      <span class="muted">Select one ZIP, or several CSV/JSON files at once.</span>
     </div>
-  </main>
-</div>
-<footer class="foot"><span id="attrib"></span> &middot; Runs entirely in this browser tab; the chosen file is never uploaded.</footer>
-
-<script src="vendor/maplibre-gl/maplibre-gl.js"></script>
-<script src="geo/wa-counties.js"></script>
-<script src="app/csv.js"></script>
-<script src="app/master.js"></script>
-<script src="app/scaling.js"></script>
-<script src="app/palettes.js"></script>
-<script src="app/aggregate.js"></script>
-<script src="app/map.js"></script>
-<script src="app/ui.js"></script>
+    <div class="picker">
+      <label for="folder-input">Choose a folder</label>
+      <input type="file" id="folder-input" webkitdirectory>
+      <span class="muted">Every file in the folder and its subfolders is checked.</span>
+    </div>
+  </div>
+  <div id="drop" tabindex="0">Or drag files, a folder or a ZIP here</div>
+  <div id="load-status" class="status info" role="status">No data loaded.</div>
+  <div id="next-step" class="next" role="region" aria-label="Next step" aria-live="polite" hidden>
+    <p id="next-text"></p>
+    <ul id="next-notes" hidden></ul>
+    <p id="next-guide" hidden><a href="#guide-cvi">What data does this need?</a></p>
+    <button type="button" class="btn primary" id="next-open" hidden></button>
+    <span class="muted" id="next-open-help" hidden>Opens in a new tab with your files. Nothing is uploaded.</span>
+    <div id="next-opened" class="status ok" role="status" hidden></div>
+  </div>
+  <div id="load-results"></div>
+  <section id="guide-section" aria-labelledby="guide"></section>
+</main>
+<footer class="foot">Synthetic test data only. Not an official WSDA service.</footer>
+<script src="shared/zip.js"></script>
+<script src="shared/load.js"></script>
+<script src="shared/recognise.js"></script>
+<script src="shared/bundle.js"></script>
+<script src="shared/checklist.js"></script>
+<script src="shared/sample.js"></script>
+<script src="shared/guide.js"></script>
+<script src="cvi/datasets.js"></script>
+<script src="cvi/sample.js"></script>
+<script src="landing.js"></script>
 </body>
 </html>

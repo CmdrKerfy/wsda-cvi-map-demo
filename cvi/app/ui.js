@@ -1,5 +1,8 @@
 /* Page wiring for the S1 WA State map: master file activation, filters (F1-F4), style controls (S1a-S1c, S1h),
- * 250 ms debounce (F9), legend (M15) and status/no-match messages (M17). Defaults follow mod_maps.R. */
+ * 250 ms debounce (F9), legend (M15) and status/no-match messages (M17). Defaults follow mod_maps.R.
+ * Data-loading foundation (F1 day 4): controls whose data is missing are greyed with the reason (shared feature
+ * gating, CVI dataset list), and a master table handed over by the landing page (WSDA.load.handoff) is loaded
+ * exactly as if it had been chosen here; its bundle.json banner is shown. */
 (function (root) {
   'use strict';
   const W = root.CVIWA, doc = root.document;
@@ -66,11 +69,19 @@
   $('file-input').addEventListener('change', ev => {
     const f = ev.target.files && ev.target.files[0];
     if (!f) return;
+    // Clearing the input permits retrying the same file after a read failure.
+    ev.target.value = '';
+    showBanner(null);                 // a file chosen here is not the handed-over bundle
+    loadFile(f);
+  });
+  // A load superseded by a newer one (a file chosen here) still answers the landing page, once (audit E-02).
+  const SUPERSEDED = 'a file was chosen on the map page while yours were on their way, and that file is kept. Click "Open the CVI map" to send yours again.';
+  function loadFile(f, reply) {          // reply({ ok, message }): only for files handed over by the landing page
+    let replied = false;
+    const done = reply && (r => { if (!replied) { replied = true; reply(r); } });
     const request = ++loadVersion, previousSpecies = st.species.slice(), previousSub = st.speciesSub.slice();
     if (activeReader && activeReader.readyState === 1) activeReader.abort();
     activeReader = null;
-    // Clearing the input permits retrying the same file after a read failure.
-    ev.target.value = '';
     st.loading = true;
     clearMaster();
     setStatus('info', 'Loading ' + f.name + '… Previous dataset cleared.');
@@ -78,15 +89,16 @@
     activeReader = reader;
     const current = () => request === loadVersion && activeReader === reader;
     const fail = message => {
-      if (!current()) return;
+      if (!current()) { if (done) done({ ok: false, message: SUPERSEDED }); return; }
       activeReader = null; st.loading = false;
       clearMaster();
       setStatus('err', 'Master dataset failed to load (' + f.name + '). ' + message + ' No dataset is active. Choose a CSV to retry.');
+      if (done) done({ ok: false, message });
     };
     reader.onerror = () => fail('The file could not be read.');
     reader.onabort = () => fail('Reading was cancelled.');
     reader.onload = () => {
-      if (!current()) return;
+      if (!current()) { if (done) done({ ok: false, message: SUPERSEDED }); return; }
       let m;
       try { m = W.master.load(String(reader.result)); } catch (e) { m = { ok: false, error: e.message }; }
       if (!m.ok) { fail(m.error); return; }
@@ -99,10 +111,42 @@
       setStatus('ok', 'Master loaded (' + f.name + '): ' + m.physicalRows.toLocaleString('en-US') + ' rows in the file; ' +
         m.mapRows.toLocaleString('en-US') + ' map rows (each WA-to-WA record is drawn as one inbound and one outbound row).');
       renderAll(); schedule(0);
+      if (done) done({ ok: true, message: '' });
     };
     try { reader.readAsText(f); } catch (e) { fail('The file could not be read.'); }
+  }
+  function renderAll() { renderList('species'); renderList('years'); renderList('quarters'); refreshSub(); gateControls(); }
+
+  // ---- F1: feature gating and files handed over by the landing page ---------------------------------------------
+  const F = root.WSDA;
+  function gateControls() {
+    const m = st.master;
+    const result = { datasets: m ? [{ id: 'master', status: 'found', header: m.header }] : [] };
+    st.features = F.checklist.gate(result, F.profiles.cvi);
+    F.checklist.applyGates(doc, st.features);
+  }
+  function showBanner(text) { const b = $('bundle-banner'); b.textContent = text || ''; b.hidden = !text; }
+  // Files arriving after the user chose a file on this page are not used: the newer choice, its status and its banner
+  // stay (audit E-02: a slow read on the landing page could otherwise replace it, or report a failure over it).
+  const askedAt = loadVersion;
+  F.load.handoff.receive('cvi', (d, reply) => {
+    const m = d.datasets && d.datasets.master;
+    st.received = { datasets: Object.keys(d.datasets || {}), banner: d.banner || null };   // test hook
+    if (loadVersion !== askedAt) {    // a read failure there was already reported there; otherwise say why nothing loaded
+      st.received.superseded = true;
+      if (!d.error) reply({ ok: false, message: SUPERSEDED });
+      return;
+    }
+    if (d.error) {                    // the landing page could not read the files (audit D4-02)
+      st.received.error = String(d.error);
+      showBanner(null);
+      setStatus('err', 'Your files could not be sent from the landing page: ' + d.error + ' No dataset is active. Load your files again there and click "Open the CVI map", or choose a CSV here.');
+      return;
+    }
+    showBanner(typeof d.banner === 'string' ? d.banner : null);
+    if (m && m.file instanceof root.Blob) loadFile(m.file, reply);
+    else reply({ ok: false, message: 'No CVI master table was sent.' });
   });
-  function renderAll() { renderList('species'); renderList('years'); renderList('quarters'); refreshSub(); }
 
   // ---- other controls ------------------------------------------------------------------------------------------
   doc.querySelectorAll('input[name=direction]').forEach(cb => cb.addEventListener('change', () => {
