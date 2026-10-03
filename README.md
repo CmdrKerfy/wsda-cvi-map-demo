@@ -11,7 +11,8 @@ numbers, circle sizes, colors and display options can be checked in a browser wi
 ## Privacy
 
 - The pages run entirely in your browser. The files you choose are read in the tab and **never uploaded**. The landing
-  page passes them to the map's tab in memory; nothing is written to disk.
+  page passes them to the map's tab in memory, and the pages save nothing (the browser may still use its own temporary
+  storage for large files; "Download a sample bundle" saves only the made-up sample you ask for).
 - The pages make no network requests beyond loading their own files. There are no map tiles, analytics, fonts or
   third-party services, and a Content Security Policy blocks outgoing connections (`connect-src 'none'`).
 - To check this, open DevTools → Network, tick *Preserve log*, reload, load files and use the controls. The only
@@ -58,3 +59,4 @@ The Emergency dashboard is shown as "in preparation".
 - MapLibre GL JS 5.22.0: BSD 3-Clause, © MapLibre contributors (`vendor/maplibre-gl/LICENSE.txt`).
 - County boundaries: U.S. Census Bureau, 2023 cartographic boundary file (public domain).
 - Details and checksums: [PROVENANCE.md](PROVENANCE.md).
+- Contact: the repository owner, as maintainer of this demo.

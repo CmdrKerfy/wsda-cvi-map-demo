@@ -47,6 +47,9 @@ county anchor coordinates are rounded Census-derived label points. They contain 
 |---|---|
 | `cvi_master_small.csv` | `26639aa5dbe47547ed2bc924435759547d0ef9e836c196fa6ee3085bc5ce8eab` |
 | `cvi_master_wa39.csv` | `8847a63960213a8d1840476dc4b5c8445455d91764576b71b9dddf8a19a8d13d` |
-| `cvi_tier_full.zip` | `6792b679a9ddcfcf597eec707b07efeb48f3b28c8547c9a4ac46cbaf059c0db2` |
-| `cvi_tier_partner.zip` | `993460fbdffc74db50b18e85b9c08935aa67b2175e353da47481a6cb3d5dd573` |
-| `cvi_tier_public.zip` | `04493ebba9d4cbe3002b6c19ee0786c5a22262c307e67540f8e0887be5d9c272` |
+| `cvi_tier_full.zip` | `1379a31e9683a2239fddc5a53805d614be7613447c09ac11a45a6edd9b928a7c` |
+| `cvi_tier_partner.zip` | `31110f7348260f484ac018c87e58bf691a6f0b2c3622fb7a77dc982b9cd56576` |
+| `cvi_tier_public.zip` | `91d4a5eecdc478c8f35f9c21e7d7cbf647acd27a08232ac714839735a044b8ff` |
+
+The `cvi_tier_*.zip` archives are compressed with Node.js 25.9.0 (zlib 1.2.12, arm64); another Node.js or zlib build
+may produce different archive bytes from the same files.

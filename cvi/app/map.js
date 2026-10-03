@@ -1,5 +1,5 @@
-/* MapLibre rendering of the WA State map, after CVI shiny/modules/mod_maps.R .build_county_map() (inventory M2, M14,
- * S1h). Labels are HTML markers so no glyph files are fetched (offline, file://). */
+/* MapLibre rendering of the WA State map, after CVI shiny/modules/mod_maps.R .build_county_map().
+ * Labels are HTML markers so no glyph files are fetched (offline, file://). */
 (function (root) {
   'use strict';
   const WA_VIEW_BOUNDS = [-124.90, 45.40, -116.85, 49.05];   // .WA_VIEW_BOUNDS

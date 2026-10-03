@@ -131,7 +131,7 @@
     return acc;
   }
 
-  /* Hand-off between tabs (F1 day 4; owner decision 2026-10-01: each dashboard in its own tab, reused on the next
+  /* Hand-off between tabs (owner decision 2026-10-01: each dashboard in its own tab, reused on the next
    * click). The landing page opens a profile's page in a tab named "wsda-<profile>" and passes the files it found
    * to it in memory; nothing is written to disk or sent anywhere else.
    * Each click makes a new random key and puts it in the page's address ("?handoff=<key>"). The profile page reads it,
@@ -139,8 +139,8 @@
    * channel (no data). The landing page answers only the tab it opened, only for the latest click's key, and only
    * through that channel, so the files reach the document that asked and no other. A reload keeps the address and
    * asks again (same files); a document that later replaces the profile page in that tab does not have the key and
-   * gets nothing (audit D4-01). The profile page reports on the channel when the files are loaded, or why not, and the
-   * landing page reports files it could not read (audit D4-02). Both pages say "no-referrer", so the key does not leave
+   * gets nothing. The profile page reports on the channel when the files are loaded, or why not, and the
+   * landing page reports files it could not read. Both pages say "no-referrer", so the key does not leave
    * in a Referer header.
    * Over http(s) "wsda-ready" is addressed to the page's own origin and checked against it. Pages of one origin can
    * read each other directly anyway (the browser's same-origin rule), so a hosted copy should not share its origin

@@ -1,15 +1,15 @@
 /* CVI dataset list v1 (F1). Declares every file the CVI profile can use: what it is called, the file name CVI
  * expects, whether it is required, the columns that identify it, the optional columns that switch features on, and
  * a one-line description for the in-app guide. Shapes follow CVI as-is (stable per the owner, 2026-09-30):
- *   master           CVI_Traceability shiny/R/master_loader.R:45-58 (13 required columns, exact names as fread
- *                    reads them); optional columns from the parity inventory N2.
+ *   master           CVI shiny/R/master_loader.R (13 required columns, exact names as fread
+ *                    reads them); optional columns as CVI's features use them.
  *   facility layers  map_helpers.R .OVERLAY_REGISTRY_BUILTIN (key, file, name_col) and load_overlay_csv() (any
  *                    lat/latitude/y and long/lon/lng/longitude/x spelling, case-insensitive). CVI tells these
- *                    layers apart by file name only; their columns are generic (owner decision 1A, 2026-10-01).
+ *                    layers apart by file name only; their columns are generic (owner decision 2026-10-01).
  *   manifest         map_helpers.R .read_overlay_manifest(): adds layers, or overrides a built-in layer's file.
  * Any CVI schema change updates this file and its tests in the same change.
  *
- * Boundary (audit F1-R3): this list reproduces what CVI needs to RECOGNISE its files, not CVI's whole loaders.
+ * Boundary: this list reproduces what CVI needs to RECOGNISE its files, not CVI's whole loaders.
  * Still to match when the maps that use them are built: master type coercion and normalisation (S1 engine does
  * this for the WA map); facility rows need numeric coordinates to be plotted ("found" only means the right
  * columns), display-name fallback, geo_source; manifest label vs live_label, marker shape/colour and filter_cols;

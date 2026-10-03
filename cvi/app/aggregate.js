@@ -1,6 +1,6 @@
 /* WA State circle data: port of CVI shiny/R/map_helpers.R build_county_circle_data() and
  * .species_breakdown_by_key(), plus the tooltip the live map actually shows (mod_maps.R .build_county_map
- * replaces the builder tooltip). Inventory N8-N11, N14, N16. */
+ * replaces the builder tooltip). */
 (function (root) {
   'use strict';
   const S = () => root.CVIWA.scaling;
@@ -105,7 +105,7 @@
     if (dset.has('Inbound')) parts.push(directionAgg(df, 'Inbound', 'Dest.County', 'Dest.County.Lat', 'Dest.County.Long').map(r => Object.assign(r, { lon: r.lon - offset, direction: 'Inbound', color: COLORS.Inbound })));
     if (dset.has('Outbound')) parts.push(directionAgg(df, 'Outbound', 'Origin.County', 'Origin.County.Lat', 'Origin.County.Long').map(r => Object.assign(r, { lon: r.lon + offset, direction: 'Outbound', color: COLORS.Outbound })));
     if (!parts.length) return [];
-    // Each direction scaled independently (N14).
+    // Each direction scaled independently.
     parts.forEach(p => { const rad = S().computeRadius(p.map(r => r.total_animals), opts.scaling, 4, 48, opts.nBins); p.forEach((r, i) => { r.radius_px = rad[i]; }); });
     const out = [].concat(...parts);
     if (!out.length) return [];

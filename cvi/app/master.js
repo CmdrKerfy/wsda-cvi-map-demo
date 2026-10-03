@@ -1,4 +1,4 @@
-/* Master load + normalization: port of CVI shiny/R/master_loader.R load_master_csv() (inventory N1-N5, N7).
+/* Master load + normalization: port of CVI shiny/R/master_loader.R load_master_csv().
  * Rows become objects keyed by the original header names. Missing values are null. */
 (function (root) {
   'use strict';

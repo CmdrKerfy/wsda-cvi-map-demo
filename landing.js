@@ -1,11 +1,11 @@
 /* Landing page (F1): profile cards, then the user's files through the shared loader and the data checklist
  * (bundle.json banner, datasets found / missing, features on / off, what each file is used as), then a clear next
- * step: "Open the CVI map" when its data is found, otherwise what is missing (owner feedback on day 3).
+ * step: "Open the CVI map" when its data is found, otherwise what is missing (owner feedback).
  * Each dashboard opens in its own tab, reused on the next click, and receives the files it uses in memory
  * (WSDA.load.handoff; owner decision 2026-10-01). Routing: a bundle.json "profile" names the dashboard the bundle
  * is for. CVI is the only dashboard available, so files are always checked against CVI; a bundle for a dashboard in
  * preparation, or for one this site does not have, is reported in the next step and on the cards.
- * Day 5: "What data does this need?" (shared/guide.js) is a section of this page, linked from the cards, the intro
+ * "What data does this need?" (shared/guide.js) is a section of this page, linked from the cards, the intro
  * and the next step whenever data is missing; it offers each profile's synthetic sample bundle as a download
  * (owner decision 2026-10-02). The CVI sample is built from the county label points, so geo/wa-counties.js is read
  * only when the sample is first asked for.
@@ -103,7 +103,7 @@
 
   // ---- next step --------------------------------------------------------------------------------------------------
   // While files are read or rechecked (a choice in Datasets) nothing can be opened: the buttons are disabled and the
-  // next step says the files are being checked, so an earlier "Open" cannot send an outdated result (audit D4-03).
+  // next step says the files are being checked, so an earlier "Open" cannot send an outdated result.
   function paintNext() {
     const cl = checklist.state, box = $('next-step'), checking = state.loading || cl.busy;
     const n = checking ? null : nextStep(cl.load, cl);
@@ -147,7 +147,7 @@
   function say(kind, text) { const msg = $('next-opened'); msg.hidden = false; msg.className = 'status ' + kind; msg.textContent = text; }
 
   // Success is reported only when the dashboard says it has loaded the files; a file that cannot be read, here or
-  // there, is reported with what to do (audit D4-02).
+  // there, is reported with what to do.
   function report(opened, p, s) {
     if (state.opened !== opened) return;               // a later click, load or choice
     if (s.state === 'loaded') say('ok', `${cap(p.map)} is open in its own tab with your files. If you load other files here, click "${p.open}" again to send them.`);
@@ -158,7 +158,7 @@
   function openProfile(id) {
     const p = PROFILES.find(x => x.id === id && x.available);
     const cl = checklist.state;
-    if (!p || state.loading || cl.busy) return null;   // still checking: nothing to open yet (audit D4-03)
+    if (!p || state.loading || cl.busy) return null;   // still checking: nothing to open yet
     const n = nextStep(cl.load, cl), ready = n && n.open === p.id;
     const opened = { id: p.id, withFiles: !!ready };
     const win = L.handoff.open(p.id, p.url, ready ? payloadFor(p, cl) : () => null, s => report(opened, p, s));
@@ -185,7 +185,7 @@
     const op = ++state.op;
     state.loading = true;
     setStatus('info', 'Reading files…');
-    checklist.clear();                // the previous checklist and banner go at once (audit D3-02)
+    checklist.clear();                // the previous checklist and banner go at once
     let result = null, error = null;
     try { result = await collect(); } catch (e) { error = e; }
     if (op !== state.op) return;

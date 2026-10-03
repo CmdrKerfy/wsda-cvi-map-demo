@@ -5,13 +5,13 @@
  *   - conflict chooser: two files claim one dataset -> "Which file is the …?" (choices: dataset id -> file id);
  *   - "which layer is this file?" picker (owner scope addition 2026-10-01): for a file recognisable only as "a
  *     facility layer", the layers it could be (assign: file id -> dataset id). The user's pick outranks bundle.json,
- *     which outranks columns and names. Since the owner's answer after day 3, the same dropdown is also offered as
+ *     which outranks columns and names. Since a later owner answer, the same dropdown is also offered as
  *     "change layer" on every facility file that could be more than one layer, so a file placed by its name or by
  *     bundle.json can be re-pointed; its first option keeps or restores the automatic result.
  * Also shows the bundle.json banner (bundle.js). Every text from the user's files is escaped; nothing leaves the
  * browser.
  *
- * Audit D3 (2026-10-01): dropdown options come from the latest recognition only (never cached); user-controlled ids
+ * Safeguards: dropdown options come from the latest recognition only (never cached); user-controlled ids
  * live in objects without inherited keys; a new load removes the previous panel at once and every dropdown carries
  * its load's generation, so an old control cannot change a newer load; a pick made while bundle.json is still being
  * read waits for it; layer options are filled in when a dropdown is opened (many files x many layers would otherwise
@@ -21,10 +21,10 @@
  * layerOptions(result, fileId, assign) -> [{ value, text }] or null: the layers the file's dropdown offers
  * create({ container, banner, profile, onUpdate? }) -> { show(loadResult), assign(fileId, datasetId, gen?), choose(datasetId,
  *   fileId, gen?), clear(), state }   state: { load, bundle, result, features, assign, choices, version, busy, gen }
- *   onUpdate(state) is called whenever the panel has been redrawn (new load, pick, choice or clear; F1 day 4: the
+ *   onUpdate(state) is called whenever the panel has been redrawn (new load, pick, choice or clear; the
  *   landing page's next step follows the checklist).
  * applyGates(scope, features): greys every element marked data-feature="<id>" whose feature is off: its controls
- *   are disabled, a <details> cannot be opened, and its [data-gate-reason] element shows why (F1 day 4, CVI page). */
+ *   are disabled, a <details> cannot be opened, and its [data-gate-reason] element shows why (CVI page). */
 (function (root) {
   'use strict';
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -203,7 +203,7 @@
     // Only the latest request (new load, pick, choice or clear) may publish; every published request ends idle.
     async function refresh(op) {
       st.busy = true;
-      if (opts.onUpdate) opts.onUpdate(st);           // at the start too: the page shows "checking" at once (audit D4-03)
+      if (opts.onUpdate) opts.onUpdate(st);           // at the start too: the page shows "checking" at once
       let res = null, err = null;
       try {
         await st.bundleReady;                         // a pick made while bundle.json is read waits for it

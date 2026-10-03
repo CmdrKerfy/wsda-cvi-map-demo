@@ -4,7 +4,7 @@
  * Windows Explorer "Send to > Compressed folder", macOS Finder "Compress" and common tools write by default.
  * Not supported, with a plain message: encryption, ZIP64 (over 4 GB or 65,535 entries), other methods.
  * Entries are extracted on demand (entry.read(), or entry.head(n) for the first bytes only), CRC-32 checked on
- * full reads, and capped by the limits below. Structure is checked before trusting it (audit F1-R3): single-disk
+ * full reads, and capped by the limits below. Structure is checked before trusting it: single-disk
  * archives only, complete directory records, each local header agreeing with its directory record (name, method,
  * and sizes/CRC unless a data descriptor follows), entries not overlapping and lying before the directory, no
  * duplicate paths, and a declared size a deflate stream can actually produce. Output buffers grow with the data

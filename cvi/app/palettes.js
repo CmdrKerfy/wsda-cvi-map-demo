@@ -1,4 +1,4 @@
-/* WA State direction palettes: values from CVI shiny/R/map_helpers.R DIRECTION_PALETTES (inventory S1c). */
+/* WA State direction palettes: values from CVI shiny/R/map_helpers.R DIRECTION_PALETTES. */
 (function (root) {
   'use strict';
   const DIRECTION_PALETTES = {

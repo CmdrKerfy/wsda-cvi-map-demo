@@ -9,11 +9,11 @@
  *   2. Columns: the datasets whose required columns are all present.
  *   3. Tie-break by recommended file name (case-insensitive), then by the dataset's own name column (facility
  *      layers). Facility layers share generic columns, so an unclear name leaves the file "not used" with a plain
- *      reason (owner decision 1A, 2026-10-01).
- * A manifest dataset, once found, is expanded by the profile (extra facility layers, owner decision 2A) and
+ *      reason (owner decision 2026-10-01).
+ * A manifest dataset, once found, is expanded by the profile (extra facility layers, owner decision) and
  * recognition runs again over the expanded list. Two files claiming one dataset are a conflict the user resolves
  * (opts.choices: dataset id -> file id). A user's pick outranks bundle.json, which outranks columns and names;
- * a bundle.json entry naming an unsuitable file never blocks another file (audit F1-R3).
+ * a bundle.json entry naming an unsuitable file never blocks another file.
  * Files are identified by the loader's item id (paths can repeat). Header rows are read from the first bytes of
  * a file only (at most 1 MB); UTF-16 files and semicolon/tab-separated files get a plain "save as CSV" reason.
  *
@@ -22,7 +22,7 @@
  *   cache: optional Map kept by the caller for one load, so reruns (picks, choices) do not read files again.
  *   Only own keys of these objects count (a dataset id such as "constructor" never matches an inherited property).
  *   A bundle.json entry naming an unknown dataset, or a dataset whose columns the file lacks, is reported on that file
- *   (warning, or the reason if nothing else fits) and the file is still recognised by columns and names (audit D3-04).
+ *   (warning, or the reason if nothing else fits) and the file is still recognised by columns and names.
  *   datasets: [{ id, name, required, kind, group, fromManifest, status: 'found'|'missing'|'conflict', path, fileId,
  *                item, header, missingUseful, options: [{ id, path }] }]
  *             options: the equally ranked files competing for the dataset (also kept after the user's choice, so the
@@ -31,7 +31,7 @@
  *                layers }]
  *             candidates: dataset ids the page may offer in its picker when the file could be several datasets.
  *             layers: facility layer ids the file could be (its columns fit); the page's "change layer" dropdown
- *             offers them when there is more than one (owner, 2026-10-01, after F1 day 3). */
+ *             offers them when there is more than one (owner, 2026-10-01). */
 (function (root) {
   'use strict';
   const HEAD_BYTES = 64 * 1024, MAX_HEADER_BYTES = 1024 * 1024, MAX_MANIFEST_BYTES = 1024 * 1024;
@@ -200,7 +200,7 @@
         if (ds && !miss.length) { rec.via = 'your choice'; claim(rec, ds); continue; }
         if (ds) { rec.reason = `you chose the ${ds.name}, but it has no ${listOf(miss)}`; continue; }
       }
-      // bundle.json entry: used when it fits; otherwise reported and the file is still recognised below (audit D3-04).
+      // bundle.json entry: used when it fits; otherwise reported and the file is still recognised below.
       const mappedId = Object.keys(mapping).find(id => fileMatches(rec, mapping[id]));
       let mapIssue = null;
       if (mappedId) {
@@ -214,7 +214,7 @@
       if (!pick.length) { rec.reason = mapIssue || nearMiss(rec, dsList) || `its columns do not match any ${profile.name} dataset`; continue; }
       rec.warning = mapIssue;
       // Facility layers are recognised by generic coordinate columns that any table with coordinates also has; a file
-      // with every column of a table dataset is that table, whatever its extra columns or name (audit E-01). It gets no
+      // with every column of a table dataset is that table, whatever its extra columns or name. It gets no
       // "change layer" dropdown; the user's pick and bundle.json (above) still outrank this.
       if (pick.length > 1 && pick.some(d => d.kind === 'table')) { pick = pick.filter(d => d.kind !== 'facility'); rec.layers = []; }
       if (pick.length > 1) { const byName = pick.filter(d => fileMatches(rec, d.file)); if (byName.length) { pick = byName; rec.via = 'name'; } }

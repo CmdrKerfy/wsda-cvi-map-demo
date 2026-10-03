@@ -1,4 +1,4 @@
-/* "What data does this need?" (F1 day 5). Generated from each profile's dataset list (site/<profile>/datasets.js):
+/* "What data does this need?" Generated from each profile's dataset list (site/<profile>/datasets.js):
  * for every dataset its name, the recommended file name, required or optional, what it is (about), the columns that
  * identify it, and what it turns on (features, and later versions' uses of optional columns); then the optional
  * bundle.json, and a download of the profile's synthetic sample bundle when it has one (owner decision 2026-10-02:

@@ -1,8 +1,8 @@
-/* Sample bundle download (F1 day 5): a minimal ZIP writer and the download itself. The archive is "stored" (not
+/* Sample bundle download: a minimal ZIP writer and the download itself. The archive is "stored" (not
  * compressed): browsers do not promise the same compressed bytes, so storing removes that difference. The download is
  * measured byte-identical in Chrome and in Node (both V8), where tests/synthetic/make_bundles.js writes the same archive
- * for the tests to compare; other engines are expected to match (see cvi/sample.js on Math.exp) but not yet compared
- * (audit E-03).
+ * for the tests to compare; other engines are expected to match (see cvi/sample.js on Math.exp); Safari did, others
+ * are not yet compared.
  * Entries are marked UTF-8 and written as by MS-DOS tools (no Unix permissions), so Windows Explorer, macOS Archive
  * Utility and unzip extract ordinary readable files. Fixed date 2026-09-15 12:00 (no clock), as in the test bundles.
  * Needs zip.js (crc32). Nothing leaves the browser: the download is a local blob: link.

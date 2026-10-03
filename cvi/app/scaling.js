@@ -1,5 +1,5 @@
-/* Radius engine and legend tiers: port of CVI shiny/R/map_helpers.R .compute_radius() and .legend_tiers()
- * (inventory N12, N13, N15), including R's quantile(type 7), seq(length.out), cut(include.lowest = TRUE),
+/* Radius engine and legend tiers: port of CVI shiny/R/map_helpers.R .compute_radius() and .legend_tiers(),
+ * including R's quantile(type 7), seq(length.out), cut(include.lowest = TRUE),
  * classInt 0.4-11 style "fisher" (Hartigan's exact Fisher algorithm), round() and format(big.mark = ","). */
 (function (root) {
   'use strict';

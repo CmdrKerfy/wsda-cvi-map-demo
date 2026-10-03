@@ -1,4 +1,4 @@
-/* CVI synthetic sample bundle (F1 day 5). Builds, in the browser, the files of the Full example tier: the WA master
+/* CVI synthetic sample bundle. Builds, in the browser, the files of the Full example tier: the WA master
  * table, the five facility layers, a manifest adding two layers, and bundle.json. Every value is FABRICATED; only
  * column names follow CVI's files. Nothing here is real data, and no data file is stored in the site: the files are
  * generated from code (owner decision 2026-10-02, "As proposed").
@@ -43,7 +43,7 @@
       if (r < 0.03) return 'n/a';              // non-numeric -> NA
       if (r < 0.06) return '0';
       // Math.exp is the only engine-approximated step; rounding to whole animals leaves a margin of about 4e-5 from any
-      // .5 boundary over the 1,410 calls (measured, audit E-03), so engines that differ in the last bits still agree.
+      // .5 boundary over the 1,410 calls (measured), so engines that differ in the last bits still agree.
       return String(Math.max(1, Math.round(Math.exp(1 + rnd() * 7.5))));   // ~3 to ~5,000, many ties at small values
     };
     // County weights: a few heavy counties, a long tail (so every scaling method has spread).

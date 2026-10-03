@@ -1,6 +1,6 @@
-/* Page wiring for the S1 WA State map: master file activation, filters (F1-F4), style controls (S1a-S1c, S1h),
- * 250 ms debounce (F9), legend (M15) and status/no-match messages (M17). Defaults follow mod_maps.R.
- * Data-loading foundation (F1 day 4): controls whose data is missing are greyed with the reason (shared feature
+/* Page wiring for the S1 WA State map: master file activation, filters, style controls,
+ * 250 ms debounce, legend and status/no-match messages. Defaults follow mod_maps.R.
+ * Data-loading foundation: controls whose data is missing are greyed with the reason (shared feature
  * gating, CVI dataset list), and a master table handed over by the landing page (WSDA.load.handoff) is loaded
  * exactly as if it had been chosen here; its bundle.json banner is shown. */
 (function (root) {
@@ -44,7 +44,7 @@
     const k = b.getAttribute('data-clear'); lists[k].set([]); renderList(k); schedule();
   }));
 
-  // "Refine by species": raw Species within the selected group(s); keep still-valid picks (mod_maps.R:3441-3457).
+  // "Refine by species": raw Species within the selected group(s); keep still-valid picks (as CVI's mod_maps.R).
   function refreshSub() {
     const m = st.master;
     let choices = [];
@@ -74,7 +74,7 @@
     showBanner(null);                 // a file chosen here is not the handed-over bundle
     loadFile(f);
   });
-  // A load superseded by a newer one (a file chosen here) still answers the landing page, once (audit E-02).
+  // A load superseded by a newer one (a file chosen here) still answers the landing page, once.
   const SUPERSEDED = 'a file was chosen on the map page while yours were on their way, and that file is kept. Click "Open the CVI map" to send yours again.';
   function loadFile(f, reply) {          // reply({ ok, message }): only for files handed over by the landing page
     let replied = false;
@@ -127,7 +127,7 @@
   }
   function showBanner(text) { const b = $('bundle-banner'); b.textContent = text || ''; b.hidden = !text; }
   // Files arriving after the user chose a file on this page are not used: the newer choice, its status and its banner
-  // stay (audit E-02: a slow read on the landing page could otherwise replace it, or report a failure over it).
+  // stay (a slow read on the landing page could otherwise replace it, or report a failure over it).
   const askedAt = loadVersion;
   F.load.handoff.receive('cvi', (d, reply) => {
     const m = d.datasets && d.datasets.master;
@@ -137,7 +137,7 @@
       if (!d.error) reply({ ok: false, message: SUPERSEDED });
       return;
     }
-    if (d.error) {                    // the landing page could not read the files (audit D4-02)
+    if (d.error) {                    // the landing page could not read the files
       st.received.error = String(d.error);
       showBanner(null);
       setStatus('err', 'Your files could not be sent from the landing page: ' + d.error + ' No dataset is active. Load your files again there and click "Open the CVI map", or choose a CSV here.');
